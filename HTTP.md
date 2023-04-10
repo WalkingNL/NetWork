@@ -27,3 +27,9 @@ HTTP/1.1可以重用TCP连接，但依然存在许多的性能问题。
 
 它的请求发送中，不支持并行发送，而大量的网页请求中，存在资源类这样的东西，占据了HTTP请求中大量的传输数据，为了提高网络吞吐和性能，
   
+---
+HTTP HEADER
+|field|description|
+|--|--|
+|X-Requested-With|indicate that the http request is made by XmlHttpRequest instead of being triggered by clicking a regular hyperlink or form submit button, by doing this for the purpose of security to prevent CSRF attacks|
+|Referer|contains the address of the web page from which a resource has been requested|
