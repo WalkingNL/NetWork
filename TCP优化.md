@@ -22,3 +22,44 @@
 
 ####
 
+
+### Congested Control Algorithm(CCA)
+
+loss-based algorithm, rely on packet loss to detect congestion and lower rates of transmission
+
+model-based algorithm,  The algorithm uses the maximum bandwidth and round-trip time at which the network delivered the most recent flight of outbound data packets to build a model of the network. Each cumulative or selective acknowledgment of packet delivery produces a rate sample which records the amount of data delivered over the time interval between the transmission of a data packet and the acknowledgment of that packet.
+
+
+Since the available bandwidth will generally vary over time, that bandwidth estimate must be revised occasionally.
+
+BBR
+its primary metric --- the actual bandwidth of data delivered, 
+
+```mermaid
+graph TB
+
+start[startup]
+slst[slow start]
+ramp{ramp up}
+ts[transmission speed]
+ab((available bandwidth))
+drain[drain state]
+ssm[steady-state mode]
+drainRT[transmitted packets at the bandwidth below]
+ssmRT[transmitted packets at the more or less measured bandwidth]
+mb[middleboxes]
+
+start --> slst --> ramp --> ts --> ab -- watch --> ramp
+ab -.continually.-> ramp
+ab --> drain --> ssm --> mb
+drain --- drainRT
+ssm --- ssmRT
+
+```
+    The TCP BBR algorithm continuously monitors the bandwidth measurement process, unlike traditional congestion algorithms which continue to ramp up until packets are dropped. The algorithm examines the delivered bandwidth over the last three round-trip times to see if it changes and continues to do so until the bandwidth stops rising, it concludes that it has found the effective bandwidth of the connection and can stop ramping up. 
+
+conclusion: experienced the procession described above, an available bandwidth of the connection have been measured. but, in measuring that rate, the BBR algorithm probably transmitted packets at a higher rate for a while. some of them will be sitting in the queue waiting to be delivered. these packets need to be drained out of the buffer for keeping balance.
+
+    the congested window in BBR algorithm is still set as a way of ensuring that there is never too much data in flight, but it is no longer the main machnism. instead, the tc-fq(Fair Queue traffic policing) packet scheduler to send out data at the proper rate. 
+
+In general, TCP BBR is a complicated algorithm. While it may seem like it simply measures the bandwidth of a connection, the process of measurement is not simple. Even after the bandwidth has been measured, maintaining balance requires a lot of work, such as using middlebox mechanisms and setting the arguments for tc-fq, etc
